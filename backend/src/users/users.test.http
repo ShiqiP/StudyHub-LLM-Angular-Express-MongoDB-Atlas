@@ -1,0 +1,48 @@
+POST http://localhost:3000/users/signup
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fullname"
+
+Roshan Maharjan
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+roshan.maharjan@miu.edu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="password"
+
+test
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="profile_picture"; filename="puppy.jpg"
+Content-Type: image/jpeg
+
+< ./puppy.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+# Content-Type: application/json
+
+# {
+#     "fullname": "Theo Saad", 
+#     "email": "theo@miu.edu",
+#     "password": "123456"
+# }
+###
+POST http://localhost:3000/users/signin
+Content-Type: application/json
+
+{
+    "email": "roshan.maharjan@miu.edu",
+    "password": "test"
+}
+
+# ###
+# POST http://localhost:3000/users/pictures
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzUzMmE2MDk5MDgwMWI2MGM3ZmQ0NzQiLCJmdWxsbmFtZSI6IkFzYWFkIFNhYWQiLCJlbWFpbCI6ImFzYWFkQG1pdS5lZHUiLCJpYXQiOjE3MzM1MDcyMzF9.MjIQyP_GtBFFO4uP7XaAeoCaJM3npbCmo1VPmGxuNVs
+# Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="profile_picture"; filename="puppy.jpg"
+# Content-Type: image/jpeg
+
+# < ./puppy.jpg
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW--
