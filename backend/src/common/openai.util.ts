@@ -1,0 +1,15 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI();
+
+export const generateEmbedding = async (input: string | string[]) => {
+    const vectorEmbedding = await openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input // string or string[]
+    });
+    // console.log({
+    //     dimensions: vectorEmbedding.data[0].embedding.length, // 1536 dimentions
+    //     embedding: vectorEmbedding.data[0].embedding
+    // });
+    return vectorEmbedding.data[0].embedding
+}

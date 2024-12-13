@@ -16,6 +16,7 @@ const resourceSchema = new Schema({
     title: { type: String, required: true },
     content: { type: String },
     resources: { type: [FileUploadSchema] },
+    embeddedText: { type: String },
     contentEmbedding: { type: [Number] },
     accessType: { type: String, enum: [0, 1], required: true }, // 0-private 1-public
     author: { type: String, required: true },
