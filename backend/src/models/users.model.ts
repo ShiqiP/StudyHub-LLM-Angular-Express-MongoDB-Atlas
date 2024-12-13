@@ -1,12 +1,11 @@
-import { Schema, model, InferSchemaType, pluralize } from 'mongoose';
+import { Schema, model, InferSchemaType } from 'mongoose';
+import { FileUploadSchema } from './file.upload.model';
 
 const userSchema = new Schema({
     fullname: String,
     email: { type: String, unique: true },
     password: String,
-    picture_url: String,
-    original_picture_name: String,
-    original_picture_type: String,
+    picture: FileUploadSchema
 }, {
     timestamps: true
 });

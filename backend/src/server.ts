@@ -7,6 +7,7 @@ import { errorHandler, routerNotFoundHandler } from './common/utils';
 import { connect_db } from './common/db.connect';
 import { checkToken } from './users/users.middleware';
 import userRoutes from './users/users.router';
+import resourceRoutes from './resources/resources.router';
 
 
 const app = express();
@@ -14,10 +15,10 @@ connect_db();
 
 app.use(morgan('dev'));
 app.use(cors());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(json());
 
 app.use('/users', userRoutes);
+app.use('/resources', resourceRoutes);
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);
