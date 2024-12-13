@@ -6,8 +6,11 @@ import PdfParse from "pdf-parse";
 import fs from 'node:fs';
 import path from "node:path";
 import mammoth from "mammoth";
+import { generateEmbedding } from "../common/openai.util";
+import { ResourceDTO } from "./dtos/resource.dto";
+import { Resource, ResourceModel } from "../models/resources.model";
 
-export const uploadResource: RequestHandler<unknown, StandardResponse<string>, AddResourceDTO, unknown> = async (req, res, next) => {
+export const uploadResource: RequestHandler<unknown, StandardResponse<Resource>, AddResourceDTO, unknown> = async (req, res, next) => {
     try {
         const resource_files: FileUploadDTO[] = [];
         let contentText: string = "";
@@ -36,9 +39,31 @@ export const uploadResource: RequestHandler<unknown, StandardResponse<string>, A
             });
         }
 
-        console.log(contentText);
+        const embedding = await generateEmbedding(contentText);
 
-        res.status(201).json({ success: true, data: "" });
+        const resource: Partial<ResourceDTO> = {
+            title: req.body.title,
+            content: req.body.content,
+            resources: resource_files,
+            embeddedText: contentText,
+            contentEmbedding: embedding,
+            accessType: req.body.accessType, // 0-private 1-public
+            author: req['user']?._id,
+            likesUserId: [], // store the userId
+            comment: [],
+        }
+
+        try {
+            const newResource: Resource = await ResourceModel.create(resource);
+            console.log('Resource saved successfully:', newResource);
+
+            newResource.contentEmbedding = [];
+            newResource.embeddedText = "";
+
+            res.status(201).json({ success: true, data: newResource });
+        } catch (error) {
+            console.error('Error saving resource:', error);
+        }
 
     } catch (err) {
         next(err);

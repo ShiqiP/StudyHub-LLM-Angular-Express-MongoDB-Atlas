@@ -1,10 +1,19 @@
 POST http://localhost:3000/resources/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzVjOWM1NTA4MzQ4NzllZmMxMjg1ZDIiLCJmdWxsbmFtZSI6IlJvc2hhbiBNYWhhcmphbiIsImVtYWlsIjoicm9zaGFuLm1haGFyamFuQG1pdS5lZHUiLCJpYXQiOjE3MzQxMjI2NjJ9.fe5Tj2LuNHnaq6SN1wVi2zK6j-n3apUhDLcFmUysA4Y
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="content"
 
 This is test for upload.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Demo
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="accessType"
+
+0
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="resources"; filename="HTML_Note.pdf"
 Content-Type: application/pdf
