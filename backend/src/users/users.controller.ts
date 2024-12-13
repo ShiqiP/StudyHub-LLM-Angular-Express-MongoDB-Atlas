@@ -4,6 +4,7 @@ import { hash, compare } from 'bcryptjs';
 import { ErrorWithStatus, StandardResponse } from "../common/utils";
 import { User, UserModel } from "../models/users.model";
 import { UserDTO } from "./dtos/user.dto";
+import { url } from "inspector";
 
 export const signin: RequestHandler<unknown, StandardResponse<{ token: string; }>, UserDTO, unknown> = async (req, res, next) => {
     try {
@@ -37,12 +38,14 @@ export const signup: RequestHandler<unknown, StandardResponse<string>, User, unk
         if (!new_user.password) throw new Error('Password is required');
         const hashed_password = await hash(new_user.password, 10);
 
-        const results = await UserModel.create<User>({
+        const results = await UserModel.create({
             ...req.body,
             password: hashed_password,
-            picture_url: req.file?.path,
-            original_picture_name: req.file?.originalname,
-            original_picture_type: req.file?.mimetype
+            picture: {
+                url: req.file?.path,
+                original_name: req.file?.originalname,
+                original_type: req.file?.mimetype
+            }
         });
 
         res.status(201).json({ success: true, data: results._id.toString() });
