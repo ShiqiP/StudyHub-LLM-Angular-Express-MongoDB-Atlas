@@ -22,6 +22,8 @@ export const appConfig: ApplicationConfig = {
       { path: '', redirectTo: 'signin', pathMatch: 'full' },
       { path: 'signin', component: SigninComponent },
       { path: 'signup', loadComponent: () => import('./users/signup.component').then(c => c.SignupComponent) },
+      { path: 'add-resource', loadComponent: () => import('./resources/add-resources.component').then(c => c.AddResourcesComponent) },
+      // { path: 'add-resource', component: AddResourcesComponent },
       // {
       //   path: 'diaries',
       //   loadChildren: () => import('./diaries/diaries.routes').then(r => r.diaries_routes),

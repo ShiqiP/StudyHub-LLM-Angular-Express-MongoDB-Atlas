@@ -10,9 +10,9 @@ import { jwtDecode } from 'jwt-decode';
   imports: [ReactiveFormsModule],
   template: `
     <form [formGroup]="form" (ngSubmit)="go()">
-      <input placeholder="email" [formControl]="form.controls.email"/>
-      <input placeholder="password" [formControl]="form.controls.password"/>
-      <button [disabled]="form.invalid">Go</button>
+      <input placeholder="email" class="border-2 border-black" [formControl]="form.controls.email"/>
+      <input placeholder="password" class="border-2 border-black" [formControl]="form.controls.password"/>
+      <button [disabled]="form.invalid" class="p-2 bg-blue-400 m-2">Go</button>
     </form>
   `,
   styles: ``
@@ -23,8 +23,8 @@ export class SigninComponent {
   #router = inject(Router);
 
   form = inject(FormBuilder).nonNullable.group({
-    'email': ['mike@miu.edu', Validators.required],
-    'password': ['123456', Validators.required],
+    'email': ['roshan.maharjan@miu.edu', Validators.required],
+    'password': ['test', Validators.required],
   });
 
   go() {

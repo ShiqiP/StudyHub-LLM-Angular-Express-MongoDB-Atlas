@@ -8,8 +8,9 @@ import { initial_state, StateService } from './state.service';
   template: `
     <h1>Welcome to {{title}}!</h1>
     @if(!state_service.isLoggedIn()){
-      <a [routerLink]="['','signin']">Signin</a>
-      <a [routerLink]="['','signup']">Signup</a>
+      <a class="bg-blue-400 p-1" [routerLink]="['','signin']">Signin</a>
+      <a class="bg-blue-400 p-1" [routerLink]="['','signup']">Signup</a>
+      <a class="bg-blue-400 p-1" [routerLink]="['','add-resource']">Add-Resource</a>
     }@else {
       <button (click)="signout()">signout</button>
     }
