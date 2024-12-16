@@ -1,19 +1,67 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsersService } from '../users/users.service';
+import { Component, inject, input, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators, FormControl, NgForm, FormsModule, FormGroupDirective } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult, ChangeEvent } from '@ckeditor/ckeditor5-angular';
 import { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import { environment } from '../../environments/environment';
 import { ResourcesService } from './resources.service';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatButtonModule } from '@angular/material/button';
+import { DomSanitizer } from '@angular/platform-browser';
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+  }
+}
 
 @Component({
   selector: 'app-add-resources',
-  imports: [ReactiveFormsModule, CommonModule, CKEditorModule],
+  imports: [ReactiveFormsModule, CommonModule, CKEditorModule, MatFormFieldModule, MatInputModule, MatRadioModule, MatButtonModule],
   template: `
     <div class="mx-10">
     <form [formGroup]="form" (ngSubmit)="go()">
+      <mat-form-field class="example-full-width">
+      <mat-label>Title</mat-label>
+      <input type="text" matInput [formControl]="form.controls.title" [errorStateMatcher]="matcher"
+            placeholder="Title">
+      @if (form.controls.title.hasError('required')) {
+        <mat-error>Title is <strong>required</strong></mat-error>
+      }
+      </mat-form-field>
+      @if (editor && config) {
+          <ckeditor
+    [editor]="editor"
+    [config]="config"
+    [data]="$contentInitial()"
+    (change)="contentChange($event)"
+>
+</ckeditor>
+        }
+        <mat-radio-group [formControl]="form.controls.accessType" aria-label="Select an option">
+          <mat-radio-button name="accessType" value="0">private</mat-radio-button>
+          <mat-radio-button class="ml-8" name="accessType" value="1">public</mat-radio-button>
+        </mat-radio-group>
+        <!-- <div>
+        <input type="radio" [formControl]="form.controls.accessType" id="private" name="fav_language" value="0">
+        <label for="private">private</label><br>
+        <input type="radio" [formControl]="form.controls.accessType" id="public" name="fav_language" value="1">
+        <label for="public">public</label><br>
+      </div> -->
+      <div>
+        <input type="file" multiple [formControl]="form.controls.resources" (change)="pickup_file($event)"/>
+      </div>
+      <button mat-flat-button type="submit" [disabled]="form.invalid">Submit</button>
+    </form>
+    <div [innerHTML]="this.$sanitizer.bypassSecurityTrustHtml($contentData())"></div>
+
+    <!-- <form [formGroup]="form" (ngSubmit)="go()">
       <div>
       <input class="border-2 border-black" placeholder="Title" [formControl]="form.controls.title"/>
       </div>
@@ -43,13 +91,14 @@ import { ResourcesService } from './resources.service';
         <button class="p-2 bg-blue-400">Go</button>
       </div>
     </form>
-    </div>
+    </div> -->
   `,
   styles: ``
 })
 export class AddResourcesComponent {
-  $contentInitial = signal<string>('<h1>Heading1</h1>');
+  $contentInitial = signal<string>('');
   $contentData = signal<string>('');
+  $sanitizer = inject(DomSanitizer);
 
   public editor: typeof ClassicEditor | null = null;
 
@@ -61,6 +110,8 @@ export class AddResourcesComponent {
       premium: true
     }).then(this._setupEditor.bind(this));
   }
+
+  matcher = new MyErrorStateMatcher();
 
   private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.0.0', premium: true }>) {
     const {
@@ -106,9 +157,9 @@ export class AddResourcesComponent {
 
   form = inject(FormBuilder).nonNullable.group({
     'title': ['', Validators.required],
-    'content': ['', Validators.required],
-    'accessType': ['1', Validators.required],
-    'resources': ['', Validators.required],
+    'content': [''],
+    'accessType': ['', Validators.required],
+    'resources': [''],
   });
 
   pickup_file(event: any) {
@@ -122,8 +173,6 @@ export class AddResourcesComponent {
 
   contentChange({ editor }: ChangeEvent) {
     this.$contentData.set(editor.getData());
-
-    console.log(this.$contentData());
   }
 
   go() {
