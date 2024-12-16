@@ -4,6 +4,7 @@ import { provideRouter, Routes } from '@angular/router';
 import { addTokenInterceptor } from './add-token.interceptor';
 import { SigninComponent } from './users/signin.component';
 import { StateService } from './state.service';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 function initialize() {
   const state_service = inject(StateService);
@@ -22,11 +23,13 @@ export const appConfig: ApplicationConfig = {
       { path: '', redirectTo: 'signin', pathMatch: 'full' },
       { path: 'signin', component: SigninComponent },
       { path: 'signup', loadComponent: () => import('./users/signup.component').then(c => c.SignupComponent) },
+      { path: 'add-resource', loadComponent: () => import('./resources/add-resources.component').then(c => c.AddResourcesComponent) },
+      // { path: 'add-resource', component: AddResourcesComponent },
       // {
       //   path: 'diaries',
       //   loadChildren: () => import('./diaries/diaries.routes').then(r => r.diaries_routes),
       //   canActivate: [() => inject(StateService).isLoggedIn()]
       // }
-    ])
+    ]), provideAnimationsAsync()
   ]
 };

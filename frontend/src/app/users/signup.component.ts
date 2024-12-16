@@ -8,11 +8,11 @@ import { Router } from '@angular/router';
   imports: [ReactiveFormsModule],
   template: `
     <form [formGroup]="form" (ngSubmit)="go()">
-      <input placeholder="email" [formControl]="form.controls.email"/>
-      <input placeholder="fullname" [formControl]="form.controls.fullname"/>
-      <input placeholder="password" [formControl]="form.controls.password"/>
+      <input class="border-2 border-black" placeholder="email" [formControl]="form.controls.email"/>
+      <input class="border-2 border-black" placeholder="fullname" [formControl]="form.controls.fullname"/>
+      <input class="border-2 border-black" placeholder="password" [formControl]="form.controls.password"/>
       <input type="file" [formControl]="form.controls.file" (change)="pickup_file($event)"/>
-      <button [disabled]="form.invalid">Go</button>
+      <button [disabled]="form.invalid" class="p-2 bg-blue-400">Go</button>
     </form>
   `,
   styles: ``
