@@ -8,7 +8,7 @@ export interface ChatHomeRequestDTO {
     limit?: number
 }
 export interface ChatHomeResponseDTO {
-    records: Record & { index: number },
+    records: Array<Record & { index: number }>,
     references: Array<Reference>,
     _id: string
 }
@@ -21,7 +21,7 @@ export interface ChatRequestDTO {
 }
 
 export interface ChatResponseDTO {
-    records: Record & { index: number }
+    records: Array<Record & { index: number }>
     _id: string
 }
 
