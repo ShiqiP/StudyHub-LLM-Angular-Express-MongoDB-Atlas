@@ -14,7 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
       Study Hub
     </span>
     <span>
-      <a mat-button>Resource</a>
+      <a mat-button [routerLink]="['', 'dashboard']">Dashboard</a>
+      <a mat-button [routerLink]="['', 'resources']">Resource</a>
     @if(!state_service.isLoggedIn()){
       <a mat-button class="bg-blue-400 p-1" [routerLink]="['','signin']">Signin</a>
       <a mat-button class="bg-blue-400 p-1" [routerLink]="['','signup']">Signup</a>
@@ -22,19 +23,14 @@ import { MatButtonModule } from '@angular/material/button';
       <button mat-button (click)="signout()">Signout</button>
     }
     </span>
-</mat-toolbar>
-    <!-- @if(!state_service.isLoggedIn()){
-      <a class="bg-blue-400 p-1" [routerLink]="['','signin']">Signin</a>
-      <a class="bg-blue-400 p-1" [routerLink]="['','signup']">Signup</a>
-      <a class="bg-blue-400 p-1" [routerLink]="['','add-resource']">Add-Resource</a>
-    }@else {
-      <button (click)="signout()">signout</button>
-    } -->
-    <div class="my-5">
+  </mat-toolbar>
+    <div class="my-5 mx-28">
       <router-outlet />
     </div>
   `,
-  styles: [`a{margin-right: 10px}`],
+  styles: `
+  a{margin-right: 10px}
+  ` ,
 })
 export class AppComponent {
   state_service = inject(StateService);

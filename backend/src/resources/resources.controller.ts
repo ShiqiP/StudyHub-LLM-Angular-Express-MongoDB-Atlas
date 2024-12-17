@@ -1,18 +1,20 @@
 import { RequestHandler } from "express";
-import { ErrorWithStatus, StandardResponse } from "../common/utils";
+import { StandardResponse } from "../common/utils";
 import { AddResourceDTO } from "./dtos/add.resource.dto";
-// import { SearchRequestDTO, SearchRespondDTO } from "./dtos/chat.dto";
 import { FileUploadDTO } from "../common/dtos/file.upload.dto";
 import PdfParse from "pdf-parse";
 import fs from 'node:fs';
 import path from "node:path";
 import mammoth from "mammoth";
-import { generateEmbedding, chatCompletion } from "../common/openai.util";
+import { generateEmbedding } from "../common/openai.util";
 import { ResourceDTO } from "./dtos/resource.dto";
 import { Resource, ResourceModel } from "../models/resources.model";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { ResourceAccessTypeEnum } from "../common/resource.accesstype.enum";
+import { MulterFileDetail, ParsedResourceDTO } from "./dtos/parse.resource.dto";
+import { AddCommentDTO } from "./dtos/add.comment.dto";
+import { CommentDTO } from "../comments/dtos/comment.dto";
 
-export const uploadResource: RequestHandler<unknown, StandardResponse<Resource>, AddResourceDTO, unknown> = async (req, res, next) => {
+export const uploadResource: RequestHandler<unknown, StandardResponse<Partial<Resource>>, AddResourceDTO, unknown> = async (req, res, next) => {
     try {
         const resource_files: FileUploadDTO[] = [];
         let contentText: string = "";
@@ -21,24 +23,34 @@ export const uploadResource: RequestHandler<unknown, StandardResponse<Resource>,
             contentText += req.body.content;
         }
 
-        for (const f in req.files) {
-            const extName = path.extname(req.files[f].originalname);
-            if (extName === ".pdf") {
-                let dataBuffer = fs.readFileSync(req.files[f].path);
-                let data = await PdfParse(dataBuffer);
-                contentText += data.text;
-            } else if (extName === ".doc" || extName === ".docx") {
-                let data = await mammoth.extractRawText({ path: req.files[f].path });
-                contentText += data.value;
-            } else {
-                contentText += fs.readFileSync(req.files[f].path, { encoding: 'utf8' });
-            }
+        let parsedData: Partial<ParsedResourceDTO> = {};
 
-            resource_files.push({
-                url: req.files[f].path,
-                original_name: req.files[f].originalname,
-                original_type: req.files[f].mimetype
-            });
+        try {
+            // for (const f in req.files) {
+            //     const extName = path.extname(req.files[f].originalname);
+            //     if (extName === ".pdf") {
+            //         let dataBuffer = fs.readFileSync(req.files[f].path);
+            //         let data = await PdfParse(dataBuffer);
+            //         contentText += data.text;
+            //     } else if (extName === ".doc" || extName === ".docx") {
+            //         let data = await mammoth.extractRawText({ path: req.files[f].path });
+            //         contentText += data.value;
+            //     } else {
+            //         contentText += fs.readFileSync(req.files[f].path, { encoding: 'utf8' });
+            //     }
+
+            //     resource_files.push({
+            //         url: req.files[f].path,
+            //         original_name: req.files[f].originalname,
+            //         original_type: req.files[f].mimetype
+            //     });
+            // }
+            if (req.files) {
+                parsedData = await parseFiles(req.files);
+            }
+        } catch (err) {
+            res.status(500).json({ success: false, message: `Cannot parse one or more file please only use pdf, word, or any file extension which can be opened in text editor.`, data: {} });
+            return;
         }
 
         const embedding = await generateEmbedding(contentText);
@@ -65,60 +77,238 @@ export const uploadResource: RequestHandler<unknown, StandardResponse<Resource>,
             res.status(201).json({ success: true, data: newResource });
         } catch (error) {
             console.error('Error saving resource:', error);
+            return;
         }
 
     } catch (err) {
-        next(err);
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: {} });
     }
 };
 
-// export const searchHandler: RequestHandler<unknown, StandardResponse<SearchRespondDTO>, SearchRequestDTO, unknown> = async (req, res, next) => {
-//     try {
-//         const { question, limit } = req.body
-//         const embedding = await generateEmbedding(question);
-//         const pipeline = [
-//             {
-//                 $vectorSearch: {
-//                     index: 'resource_vector_index',
-//                     "queryVector": embedding,
-//                     "path": "contentEmbedding",
-//                     "numCandidates": 20,
-//                     "limit": limit || 3,
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     embeddedText: 1,
-//                     title: 1,
-//                     _id: 1
-//                 }
-//             }
-//         ]
+export const getResources: RequestHandler<unknown, StandardResponse<Partial<Resource>[]>, unknown, { page: number, limit: number }> = async (req, res, next) => {
+    try {
 
-//         // find the relevant resources
-//         const results = await ResourceModel.aggregate(pipeline);
-//         const links = results.map(el => { return { _id: el._id, title: el.title } });
+        const page = req.query.page ?? 1;
+        const limit = req.query.limit ?? 10;
 
-//         // summarize the resources
-//         const contents: Array<ChatCompletionMessageParam> = results.map(el => { return { content: `Content: ${el.embeddedText}`, role: 'user' } })
-//         const messages: Array<ChatCompletionMessageParam> = [
-//             {
-//                 role: 'system',
-//                 content: 'Answer the question based on the given content'
-//             },
-//             {
-//                 role: 'user',
-//                 content: `Question: ${question}`
-//             },
-//             ...contents
-//         ]
-//         const summaryObject = await chatCompletion({ messages })
-//         const summary = summaryObject.choices[0].message.content
+        let resources = await ResourceModel.find({ accessType: ResourceAccessTypeEnum.public }, {
+            title: 1,
+            content: 1,
+            resources: 1,
+            embeddedText: 1,
+            accessType: 1, // 0-private 1-public
+            author: 1,
+            likesUserId: 1, // store the userId
+            comment: 1,
+        })
+            .sort({ createdAt: -1, updatedAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
 
-//         res.status(201).json({ success: true, data: { links, summary: summary || "" } });
+        res.status(200).json({ success: true, data: resources });
 
-//     } catch (err) {
-//         next(err)
-//     }
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: [] });
+    }
+};
 
-// }
+export const getOwnResources: RequestHandler<unknown, StandardResponse<Partial<Resource>[]>, unknown, { page: number, limit: number }> = async (req, res, next) => {
+    try {
+
+        const page = req.query.page ?? 1;
+        const limit = req.query.limit ?? 10;
+
+        let resources = await ResourceModel.find({ author: req['user']?._id }, {
+            title: 1,
+            content: 1,
+            resources: 1,
+            embeddedText: 1,
+            accessType: 1, // 0-private 1-public
+            author: 1,
+            likesUserId: 1, // store the userId
+            comment: 1,
+        })
+            .sort({ createdAt: -1, updatedAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.status(200).json({ success: true, data: resources });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: [] });
+    }
+};
+
+export const getResourceById: RequestHandler<{ id: string }, StandardResponse<Partial<Resource>>, unknown, unknown> = async (req, res, next) => {
+    try {
+
+        let resource = await ResourceModel.findById({ _id: req.params.id }, {
+            title: 1,
+            content: 1,
+            resources: 1,
+            accessType: 1, // 0-private 1-public
+            author: 1,
+            likesUserId: 1, // store the userId
+            comment: 1,
+        });
+
+        res.status(200).json({ success: true, data: resource ?? {} });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: {} });
+    }
+};
+
+export const updateResourceById: RequestHandler<{ id: string }, StandardResponse<number>, AddResourceDTO, unknown> = async (req, res, next) => {
+
+    const resource = await ResourceModel.findOne({ _id: req.params.id }, { _id: 0, author: 1, embeddedText: 1 });
+
+    if (resource?.author != req['user']?._id) {
+        res.status(500).json({ success: false, message: `Resourse can only be updated by the auther`, data: 0 });
+    }
+
+    let parsedData: ParsedResourceDTO = {
+        contentText: "",
+        resource_files: []
+    };
+
+    try {
+        if (req.files) {
+            parsedData = await parseFiles(req.files);
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Cannot parse one or more file please only use pdf, word, or any file extension which can be opened in text editor.`, data: 0 });
+    }
+
+    const content: {
+        resources: MulterFileDetail[] | undefined,
+        embeddedText: string,
+        contentEmbedding: number[]
+    } = {
+        resources: [],
+        embeddedText: "",
+        contentEmbedding: []
+    };
+
+    if ((resource?.embeddedText !== null || parsedData.contentText != null) && resource?.embeddedText !== parsedData.contentText) {
+        content.resources = parsedData.resource_files,
+            content.embeddedText = parsedData.contentText,
+            content.contentEmbedding = await generateEmbedding(parsedData.contentText)
+    }
+
+    try {
+        let updateData = {};
+
+        if (content.embeddedText != "") {
+            updateData = {
+                ...content,
+                title: req.body.title,
+                content: req.body.content,
+                accessType: req.body.accessType, // 0-private 1-public
+            }
+        } else {
+            updateData = {
+                title: req.body.title,
+                content: req.body.content,
+                accessType: req.body.accessType, // 0-private 1-public
+            }
+        }
+
+        let results = await ResourceModel.updateOne({ _id: req.params.id }, updateData);
+
+        res.status(200).json({ success: true, data: results.modifiedCount });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: 0 });
+    }
+};
+
+export const deleteResourceById: RequestHandler<{ id: string }, StandardResponse<number>, unknown, unknown> = async (req, res, next) => {
+
+    try {
+        let results = await ResourceModel.deleteOne({ _id: req.params.id, author: req['user']?._id });
+
+        res.status(200).json({ success: true, data: results.deletedCount });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: 0 });
+    }
+};
+
+export const likeResourceById: RequestHandler<{ id: string }, StandardResponse<number>, { liked: boolean }, unknown> = async (req, res, next) => {
+
+    try {
+        let updateData = {};
+        if (req.body.liked) {
+            updateData = { $pull: { likesUserId: req['user']?._id } };
+        } else {
+            updateData = { $addToSet: { likesUserId: req['user']?._id } };
+        }
+
+        let results = await ResourceModel.updateOne({ _id: req.params.id }, updateData);
+
+        res.status(200).json({ success: true, data: results.modifiedCount });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: 0 });
+    }
+};
+
+export const commentResourceById: RequestHandler<{ id: string }, StandardResponse<number>, AddCommentDTO, unknown> = async (req, res, next) => {
+    console.log(req.body);
+    try {
+        const comment: CommentDTO = {
+            userId: req['user']?._id,
+            comment: req.body.comment,
+            parentId: req.body.parentId
+        }
+
+        let results = await ResourceModel.updateOne({ _id: req.params.id }, { $push: { comment: comment } });
+
+        res.status(200).json({ success: true, data: results.modifiedCount });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: 0 });
+    }
+};
+
+export const downloadResourceFile: RequestHandler<unknown, unknown, { path: string }, unknown> = async (req, res, next) => {
+    res.download(req.body.path, function (err) {
+        if (err) {
+            console.log(err);
+        }
+    })
+}
+
+export const downloadOwnResourceFile: RequestHandler<{ id: string }, unknown, unknown, unknown> = async (req, res, next) => {
+}
+
+const parseFiles = async (files: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] }): Promise<ParsedResourceDTO> => {
+
+    let parsedData: ParsedResourceDTO = {
+        contentText: "",
+        resource_files: []
+    };
+
+    for (const f in files) {
+        const extName = path.extname(files[f].originalname);
+        if (extName === ".pdf") {
+            let dataBuffer = fs.readFileSync(files[f].path);
+            let data = await PdfParse(dataBuffer);
+            parsedData.contentText += data.text;
+        } else if (extName === ".doc" || extName === ".docx") {
+            let data = await mammoth.extractRawText({ path: files[f].path });
+            parsedData.contentText += data.value;
+        } else {
+            parsedData.contentText += fs.readFileSync(files[f].path, { encoding: 'utf8' });
+        }
+
+        parsedData.resource_files.push({
+            url: files[f].path,
+            original_name: files[f].originalname,
+            original_type: files[f].mimetype
+        });
+    }
+
+    return parsedData;
+}

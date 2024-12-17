@@ -5,7 +5,6 @@ import morgan from 'morgan';
 
 import { errorHandler, routerNotFoundHandler } from './common/utils';
 import { connect_db } from './common/db.connect';
-import { checkToken } from './users/users.middleware';
 import userRoutes from './users/users.router';
 import resourceRoutes from './resources/resources.router';
 
@@ -17,6 +16,7 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(json());
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/users', userRoutes);
 app.use('/resources', resourceRoutes);
 
