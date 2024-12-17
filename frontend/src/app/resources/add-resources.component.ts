@@ -13,7 +13,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { DomSanitizer } from '@angular/platform-browser';
 
-/** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;
@@ -26,6 +25,22 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   imports: [ReactiveFormsModule, CommonModule, CKEditorModule, MatFormFieldModule, MatInputModule, MatRadioModule, MatButtonModule],
   template: `
     <div class="mx-10">
+    @if (!form.valid && form.touched && $errorMessage()) {
+    <div class="mb-5 text-white bg-red-600 rounded-md p-5">
+        <span [innerHTML]="$errorMessage()"></span>
+    </div>
+    }
+    @if ($successMessage()) {
+    <div class="mb-5 text-white bg-green-600 rounded-md p-5 flex justify-between">
+        <span>{{$successMessage()}}</span>
+        <span class="cursor-pointer" (click)="clearSuccessMessage()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </span>
+    </div>
+    }
     <form [formGroup]="form" (ngSubmit)="go()">
       <mat-form-field class="example-full-width">
       <mat-label>Title</mat-label>
@@ -37,61 +52,23 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
       </mat-form-field>
       @if (editor && config) {
           <ckeditor
-    [editor]="editor"
-    [config]="config"
-    [data]="$contentInitial()"
-    (change)="contentChange($event)"
->
-</ckeditor>
+              [editor]="editor"
+              [config]="config"
+              [data]="$contentInitial()"
+              (change)="contentChange($event)">
+          </ckeditor>
         }
-        <mat-radio-group [formControl]="form.controls.accessType" aria-label="Select an option">
-          <mat-radio-button name="accessType" value="0">private</mat-radio-button>
-          <mat-radio-button class="ml-8" name="accessType" value="1">public</mat-radio-button>
-        </mat-radio-group>
-        <!-- <div>
-        <input type="radio" [formControl]="form.controls.accessType" id="private" name="fav_language" value="0">
-        <label for="private">private</label><br>
-        <input type="radio" [formControl]="form.controls.accessType" id="public" name="fav_language" value="1">
-        <label for="public">public</label><br>
-      </div> -->
-      <div>
+        <div class="mt-3">
+          <mat-radio-group [formControl]="form.controls.accessType" aria-label="Select an option">
+            <mat-radio-button name="accessType" value="0">private</mat-radio-button>
+            <mat-radio-button class="ml-8" name="accessType" value="1">public</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      <div class="mt-3">
         <input type="file" multiple [formControl]="form.controls.resources" (change)="pickup_file($event)"/>
       </div>
-      <button mat-flat-button type="submit" [disabled]="form.invalid">Submit</button>
+      <button class="mt-3" mat-flat-button type="submit" [disabled]="form.invalid">Submit</button>
     </form>
-    <div [innerHTML]="this.$sanitizer.bypassSecurityTrustHtml($contentData())"></div>
-
-    <!-- <form [formGroup]="form" (ngSubmit)="go()">
-      <div>
-      <input class="border-2 border-black" placeholder="Title" [formControl]="form.controls.title"/>
-      </div>
-      <div>
-      @if (editor && config) {
-          <ckeditor
-    [editor]="editor"
-    [config]="config"
-    [data]="$contentInitial()"
-    (change)="contentChange($event)"
->
-</ckeditor>
-        }
-      </div>
-      <div>
-        <input type="radio" id="private" name="fav_language" value="0">
-        <label for="private">private</label><br>
-        <input type="radio" id="public" name="fav_language" value="1">
-        <label for="public">public</label><br>
-      </div>
-      <div>
-        <input type="file" multiple [formControl]="form.controls.resources" (change)="pickup_file($event)"/>
-      </div>
-      <div>
-      </div>
-      <div>
-        <button class="p-2 bg-blue-400">Go</button>
-      </div>
-    </form>
-    </div> -->
   `,
   styles: ``
 })
@@ -99,6 +76,8 @@ export class AddResourcesComponent {
   $contentInitial = signal<string>('');
   $contentData = signal<string>('');
   $sanitizer = inject(DomSanitizer);
+  $errorMessage = signal<string>('');
+  $successMessage = signal<string>('');
 
   public editor: typeof ClassicEditor | null = null;
 
@@ -144,7 +123,7 @@ export class AddResourcesComponent {
         '|',
         'bold', 'italic', 'strikethrough', 'subscript', 'superscript', 'code',
         '|',
-        'link', 'uploadImage', 'blockQuote', 'codeBlock',
+        'link', 'blockQuote', 'codeBlock',
         '|',
         'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent'
       ]
@@ -184,7 +163,17 @@ export class AddResourcesComponent {
       formData.append('resources', this.#resources_files[i]);
     }
     this.#resourceService.addResource(formData).subscribe(response => {
-      console.log(response);
+      if (response.success) {
+        this.form.reset();
+        this.form.controls.title.reset();
+        this.$successMessage.set("Resource added successfully");
+      } else {
+        this.$errorMessage.set(response.message ?? "Something went wrong in server");
+      }
     });
+  }
+
+  clearSuccessMessage() {
+    this.$successMessage.set('');
   }
 }
