@@ -15,22 +15,22 @@ export class ResourcesService {
   constructor() { }
 
   addResource(data: FormData) {
-    return this.#http.post<StandardResponse<string>>(environment.SERVER_URL + 'resources/', data);
+    return this.#http.post<StandardResponse<string>>('resources/', data);
   }
 
   getOwnResource(queryString: string) {
-    return this.#http.get<StandardResponse<ResourceDTO[]>>(environment.SERVER_URL + 'resources/own/' + queryString);
+    return this.#http.get<StandardResponse<ResourceDTO[]>>('resources/own/' + queryString);
   }
 
   downloadFile(path: string): Observable<Blob> {
-    return this.#http.post(environment.SERVER_URL + 'resources/download', { path: path }, { responseType: 'blob' });
+    return this.#http.post('resources/download', { path: path }, { responseType: 'blob' });
   }
 
   updateLike(resoureId: string, liked: boolean) {
-    return this.#http.put(environment.SERVER_URL + 'resources/' + resoureId + '/like/', { liked: liked });
+    return this.#http.put('resources/' + resoureId + '/like/', { liked: liked });
   }
 
   delete(resoureId: string) {
-    return this.#http.delete(environment.SERVER_URL + 'resources/' + resoureId);
+    return this.#http.delete('resources/' + resoureId);
   }
 }
