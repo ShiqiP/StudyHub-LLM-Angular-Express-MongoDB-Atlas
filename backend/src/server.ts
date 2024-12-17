@@ -10,6 +10,7 @@ import resourceRoutes from './resources/resources.router';
 
 
 const app = express();
+const port = process.env.PORT || 3000;
 connect_db();
 
 app.use(morgan('dev'));
@@ -23,4 +24,4 @@ app.use('/resources', resourceRoutes);
 app.use(routerNotFoundHandler);
 app.use(errorHandler);
 
-app.listen(3000, () => console.log(`Listening on 3000`));
+app.listen(port, () => console.log(`Listening on 3000`));
