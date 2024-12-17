@@ -7,6 +7,7 @@ import { errorHandler, routerNotFoundHandler } from './common/utils';
 import { connect_db } from './common/db.connect';
 import userRoutes from './users/users.router';
 import resourceRoutes from './resources/resources.router';
+import chatRoutes from './resources/chat.router'
 
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/users', userRoutes);
 app.use('/resources', resourceRoutes);
+app.use('/chat', chatRoutes);
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);

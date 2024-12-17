@@ -17,11 +17,13 @@ export const addTokenInterceptor: HttpInterceptorFn = (req, next) => {
         headers: req.headers.set('Authorization', `Bearer ${token}`),
         url: environment.SERVER_URL + req.url
       });
-
     return next(reqWithToken);
   } else {
-    return next(req);
+    const reqWithoutToken = req.clone(
+      {
+        url: environment.SERVER_URL + req.url
+      });
+    return next(reqWithoutToken);
   }
-
 
 };

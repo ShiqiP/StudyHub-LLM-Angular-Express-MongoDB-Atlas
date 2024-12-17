@@ -7,15 +7,15 @@ export class ChatService {
   #http = inject(HttpClient);
 
   postChatHome(data: ChatRequest) {
-    return this.#http.post<{ success: boolean, data: ChatResponse }>('resources/chat/home', data);
+    return this.#http.post<{ success: boolean, data: ChatResponse }>('chat/home', data);
   }
   postChat(data: ChatRequest) {
-    return this.#http.post<{ success: boolean, data: ChatResponse }>('resources/chat', data);
+    return this.#http.post<{ success: boolean, data: ChatResponse }>('chat', data);
   }
   getChat(data: {}) {
-    return this.#http.get<{ success: boolean, data: ChatResponse }>('resources/chat', { params: data });
+    return this.#http.get<{ success: boolean, data: ChatResponse }>('chat', { params: data });
   }
   deleteChat(data: { _id: string }) {
-    return this.#http.delete<{ success: boolean, data: null }>('resources/chat', { params: data });
+    return this.#http.delete<{ success: boolean, data: null }>('chat', { params: data });
   }
 }
