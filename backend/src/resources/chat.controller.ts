@@ -56,7 +56,7 @@ export const chatHomeHandler: RequestHandler<unknown, StandardResponse<ChatHomeR
                 { references, userId, type: 0, resourceId: '0', records: [{ type: 0, content: question }, { type: 1, content: answer }] })
 
             if (answer === null) throw new ErrorWithStatus("Something went wrong with the answer", 500)
-            res.status(201).json({ success: true, data: { records: { type: 1, content: answer, index: 1 }, _id: result._id.toString(), references: result.references } });
+            res.status(201).json({ success: true, data: { records: [{ type: 1, content: answer, index: 1 }], _id: result._id.toString(), references: result.references } });
 
         } else {
             //update
@@ -83,7 +83,7 @@ export const chatHomeHandler: RequestHandler<unknown, StandardResponse<ChatHomeR
 
             const result2 = await ChatModel.updateOne({ _id: chatId }, { $push: { "records": { $each: [{ type: 0, content: question }, { type: 1, content: answer }], } } })
 
-            res.status(201).json({ success: true, data: { records: { type: 1, content: answer, index: newIndex + 1 }, _id: chatId, references: [] } });
+            res.status(201).json({ success: true, data: { records: [{ type: 1, content: answer, index: newIndex + 1 }], _id: chatId, references: [] } });
 
         }
 
@@ -124,14 +124,13 @@ export const chatHandler: RequestHandler<unknown, StandardResponse<ChatResponseD
             })
             const answer = answerObject.choices[0].message.content
             if (answer === null) throw new ErrorWithStatus("Something went wrong with the answer", 500)
-            console.log(resourceId)
             const result = await ChatModel.create({
                 type: 1,
                 userId,
                 resourceId,
                 records: [{ type: 0, content: question }, { type: 1, content: answer }]
             })
-            res.status(201).json({ success: true, data: { _id: result._id.toString(), records: { type: 1, content: answer, index: 1 } } })
+            res.status(201).json({ success: true, data: { _id: result._id.toString(), records: [{ type: 1, content: answer, index: 1 }] } })
 
         }
         else {
@@ -151,7 +150,7 @@ export const chatHandler: RequestHandler<unknown, StandardResponse<ChatResponseD
 
             const result2 = await ChatModel.updateOne({ _id: chatId }, { $push: { "records": { $each: [{ type: 0, content: question }, { type: 1, content: answer }], } } })
 
-            res.status(201).json({ success: true, data: { _id: chatId, records: { type: 1, content: answer, index: newIndex + 1 } } })
+            res.status(201).json({ success: true, data: { _id: chatId, records: [{ type: 1, content: answer, index: newIndex + 1 }] } })
 
         }
 
@@ -160,13 +159,13 @@ export const chatHandler: RequestHandler<unknown, StandardResponse<ChatResponseD
     }
 }
 
-export const getChatHandler: RequestHandler<unknown, StandardResponse<Chat>, unknown, GetChatRequestDTO> = async (req, res, next) => {
+export const getChatHandler: RequestHandler<unknown, StandardResponse<Chat | null>, unknown, GetChatRequestDTO> = async (req, res, next) => {
     try {
         const { userId, resourceId, type } = req.query
         const result = await ChatModel.findOne({ resourceId, userId, type });
 
         if (result === null) {
-            throw new ErrorWithStatus('Record not found', 404)
+            res.status(201).json({ success: true, data: null })
         } else {
             res.status(201).json({ success: true, data: result })
         }
