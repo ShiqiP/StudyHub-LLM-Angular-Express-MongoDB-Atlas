@@ -192,7 +192,7 @@ export class ChatComponent {
     })
   }
   go2Route(link: any) {
-    this.#router.navigate(['', 'resource', link._id])
+    this.#router.navigate(['', 'resources', link._id])
   }
   ngAfterViewChecked() {
     this.scrollToBottom();

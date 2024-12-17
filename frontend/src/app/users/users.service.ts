@@ -11,10 +11,10 @@ export class UsersService {
   #http = inject(HttpClient);
 
   signin(user: User) {
-    return this.#http.post<{ success: boolean, data: { token: string; }; }>(environment.SERVER_URL + 'users/signin', user);
+    return this.#http.post<{ success: boolean, data: { token: string; }; }>('users/signin', user);
   }
 
   singup(data: FormData) {
-    return this.#http.post<{ success: boolean, data: string; }>(environment.SERVER_URL + 'users/signup', data);
+    return this.#http.post<{ success: boolean, data: string; }>('users/signup', data);
   }
 }
