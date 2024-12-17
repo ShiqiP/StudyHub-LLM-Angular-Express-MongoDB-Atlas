@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsx watch --env-file=.env src/server.ts"
+    "start": "tsx watch --env-file=.env src/server.ts",
+    "build": "npx tsc",
+    "start_prod": "node --experimental-require-module ./dist/server.js"
   },
   "keywords": [],
   "author": "",
