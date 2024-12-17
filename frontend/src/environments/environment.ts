@@ -1,4 +1,4 @@
 export const environment = {
-  'SERVER_URL': 'http://localhost:3000/',
+  'SERVER_URL': 'https://final-project-shiqip-1-9b9h.onrender.com/',
   'CKEDITOR_LICENSE': 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzU0MzAzOTksImp0aSI6IjZmYTNiZjczLWM5MjctNDgxMy1hMDMyLTIyMTJmNDM1NDAyZCIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjliMzM1ODNjIn0.d8JY8B7Zdt3-dcJxhEdseJsIWKYZTLy9akADm6WIVkuxFg7g8FoB-4KOJ6SSlpbRNxtiVerd3dWrLsRpEZ2suQ'
 };
