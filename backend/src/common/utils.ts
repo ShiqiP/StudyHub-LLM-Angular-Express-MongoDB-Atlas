@@ -7,6 +7,7 @@ export type Token = {
 };
 export class StandardResponse<T> {
     success: boolean;
+    message?: string;
     data: T;
 }
 export class ErrorWithStatus extends Error {
