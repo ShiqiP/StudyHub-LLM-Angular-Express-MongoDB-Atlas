@@ -17,9 +17,5 @@ router.put("/:id/like", checkToken, likeResourceById);
 router.put("/:id/comment", checkToken, commentResourceById);
 router.post("/download/", downloadResourceFile);
 
-router.post("/chat", chatHandler)
-router.post("/chat/home", chatHomeHandler)
-router.get("/chat", getChatHandler)
-router.delete("/chat", deleteChatHandler)
 
 export default router;

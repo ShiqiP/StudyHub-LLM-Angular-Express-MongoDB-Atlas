@@ -5,7 +5,7 @@ import { StateService } from '../state.service';
 import { Reference, Record } from './chat.type';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { ConfirmDialog } from '../../components/Dialog/ConfirmDialog.components';
+import { ConfirmDialog } from '../components/Dialog/ConfirmDialog.components';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -14,14 +14,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   providers: [ChatService],
   imports: [ReactiveFormsModule, MatIconModule, MatProgressSpinnerModule],
   template: `
-  <div class="h-[50rem]">
       <div class="flex flex-col h-full">
+        <h1 class="p-4 text-xl font-bold text-gray-600">Chat box</h1>
           <div class="flex gap-3 min-w-max mx-4">
             @for(link of $references(); track link._id){
               <div (click)="go2Route(link)" class="cursor-pointer px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors whitespace-nowrap">{{link.title}}</div>
             }
           </div>
-          <div #chatBox class="flex-1 overflow-y-auto bg-gray-50 m-4 p-4 rounded justify-center">
+          <div #chatBox class="flex-1 overflow-y-auto bg-gray-50 m-4 px-4 rounded justify-center">
             <div class="flex flex-col ">
               @for(record of $records(); track $index){
                 @if(record.type === 0){
@@ -39,23 +39,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
                 }
               }
               @if($loading()){
-                <mat-spinner [diameter]="50"></mat-spinner>
+                <mat-spinner [diameter]="20"></mat-spinner>
               }
 
             </div>
           </div>
           <!-- <button (click)="handleSubmit()">submit</button> -->
-          <form [formGroup]="form" (ngSubmit)="handleSubmit()"  class="px-4 flex gap-3 justify-center items-center">
+          <form [formGroup]="form" (ngSubmit)="handleSubmit()"  class="p-4 flex gap-3 justify-center items-center">
             <mat-icon aria-hidden="false" aria-label="Example home icon"  class="text-red-700 cursor-pointer"  (click)="handleDelete()" fontIcon="delete"></mat-icon>
             <input  placeholder="Message and learn" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" [formControl]="form.controls.question"/>
             <button [disabled]="!form.valid" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">send</button>
           </form>
       </div>
-    </div>
   `,
   styles: ``
 })
 export class ChatComponent {
+  
+  $resourceId = input('0');
 
   dialog = inject(MatDialog)
   $chatBox = viewChildren<ElementRef>('chatBox')
@@ -74,7 +75,6 @@ export class ChatComponent {
   $references = signal<Array<Reference>>([]);
   $records = signal<Array<Record>>([]);
   $chatId = signal<string>('')
-  $resourceId = input('0');
 
   scrollToBottom() {
     const chatBox = this.$chatBox()[0].nativeElement
