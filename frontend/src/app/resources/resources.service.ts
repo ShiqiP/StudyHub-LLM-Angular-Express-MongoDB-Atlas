@@ -17,7 +17,9 @@ export class ResourcesService {
   addResource(data: FormData) {
     return this.#http.post<StandardResponse<string>>('resources/', data);
   }
-
+  getResource(_id: string) {
+    return this.#http.get<StandardResponse<ResourceDTO>>(`resources/${_id}`)
+  }
   getOwnResource(queryString: string) {
     return this.#http.get<StandardResponse<ResourceDTO[]>>('resources/own/' + queryString);
   }
@@ -29,8 +31,10 @@ export class ResourcesService {
   updateLike(resoureId: string, liked: boolean) {
     return this.#http.put('resources/' + resoureId + '/like/', { liked: liked });
   }
-
   delete(resoureId: string) {
     return this.#http.delete('resources/' + resoureId);
+  }
+  addComment(data: { resourceId: string, comment: string, parentId: string }) {
+    return this.#http.put(`resources/${data.resourceId}/comment`, data);
   }
 }
