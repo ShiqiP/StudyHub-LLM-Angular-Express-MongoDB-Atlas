@@ -8,11 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialog } from '../components/Dialog/ConfirmDialog.components';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-chat',
   providers: [ChatService],
-  imports: [ReactiveFormsModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [ReactiveFormsModule, MatIconModule, MatProgressSpinnerModule,MarkdownModule],
   template: `
       <div class="flex flex-col h-full">
         <h1 class="p-4 text-xl font-bold text-gray-600">Chat box</h1>
@@ -33,7 +34,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
                 }@else {
                   <div class="text-left w-4/5">
                     <div class="text-gray-800 bg-gray-200 inline-block rounded p-2 my-4">
-                      {{record.content}}
+                    <markdown
+                        [data]="record.content"
+                        [disableSanitizer]="true">
+                      </markdown>
                     </div>
                   </div>
                 }
@@ -55,7 +59,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styles: ``
 })
 export class ChatComponent {
-  
+
   $resourceId = input('0');
 
   dialog = inject(MatDialog)

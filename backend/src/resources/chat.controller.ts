@@ -5,6 +5,7 @@ import { Chat, ChatModel } from "../models/chat.model";
 import { Resource, ResourceModel } from "../models/resources.model";
 import { generateEmbedding, chatCompletion } from "../common/openai.util";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { access } from "node:fs";
 
 
 export const chatHomeHandler: RequestHandler<unknown, StandardResponse<ChatHomeResponseDTO>, ChatHomeRequestDTO, unknown> = async (req, res, next) => {
@@ -26,7 +27,10 @@ export const chatHomeHandler: RequestHandler<unknown, StandardResponse<ChatHomeR
                         "queryVector": embedding,
                         "path": "contentEmbedding",
                         "numCandidates": 20,
-                        "limit": limit || 3,
+                        limit: limit || 3,
+                        filter: {
+                            accessType: '1'
+                        }
                     }
                 },
                 {

@@ -5,6 +5,7 @@ import { addTokenInterceptor } from './add-token.interceptor';
 import { StateService } from './state.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { DashboardComponent } from './dashboard.component';
+import { provideMarkdown, MarkdownModule } from 'ngx-markdown';
 
 function initialize() {
   const state_service = inject(StateService);
@@ -16,6 +17,7 @@ function initialize() {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideMarkdown(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([addTokenInterceptor])),
     provideAppInitializer(initialize),

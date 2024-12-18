@@ -18,7 +18,7 @@ import { GetResources } from './resources/dtos/get.resources.dto';
   selector: 'app-dashboard',
   imports: [ChatComponent, MatIconModule, CommonModule, MatCardModule, MatPaginatorModule, RouterLink],
   template: `
-    <div class="fixed inset-0 bg-black/50 transition-opacity duration-300" [ngClass]="{'opacity-0 pointer-events-none': !$chatVisible(), 'opacity-100': $chatVisible()}" (click)="setChatVisible(false)"></div>
+    <div class="fixed inset-0 z-10 bg-black/50 transition-opacity duration-300" [ngClass]="{'opacity-0 pointer-events-none': !$chatVisible(), 'opacity-100': $chatVisible()}" (click)="setChatVisible(false)"></div>
 
     <div>
     </div>
