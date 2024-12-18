@@ -54,3 +54,14 @@ export const signup: RequestHandler<unknown, StandardResponse<string>, User, unk
         next(err);
     }
 };
+
+export const getUserHandler: RequestHandler<{ _id: string }, StandardResponse<any>, unknown, unknown> = async (req, res, next) => {
+    try {
+        const { _id } = req.params
+        const result = await UserModel.findOne({ _id })
+        res.status(201).json({ success: true, data: result });
+
+    } catch (err) {
+        next(err);
+    }
+};

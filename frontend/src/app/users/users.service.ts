@@ -17,4 +17,7 @@ export class UsersService {
   singup(data: FormData) {
     return this.#http.post<{ success: boolean, data: string; }>('users/signup', data);
   }
+  getUser(_id:string){
+    return this.#http.get<{ success: boolean, data: any; }>(`users/${_id}`);
+  }
 }

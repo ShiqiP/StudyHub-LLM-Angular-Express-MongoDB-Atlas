@@ -1,5 +1,5 @@
 export interface CommentDTO {
     comment: string,
-    userId: string,
+    user: { fullname: string, _id: string },
     parentId?: string
 }

@@ -244,7 +244,7 @@ export const commentResourceById: RequestHandler<{ id: string }, StandardRespons
     console.log(req.body);
     try {
         const comment: CommentDTO = {
-            userId: req['user']?._id,
+            user: { _id: req['user']?._id, fullname: req['user'].fullname },
             comment: req.body.comment,
             parentId: req.body.parentId
         }
