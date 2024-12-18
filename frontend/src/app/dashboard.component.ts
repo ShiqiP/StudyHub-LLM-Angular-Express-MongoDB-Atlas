@@ -18,8 +18,7 @@ import { GetResources } from './resources/dtos/get.resources.dto';
   selector: 'app-dashboard',
   imports: [ChatComponent, MatIconModule, CommonModule, MatCardModule, MatPaginatorModule, RouterLink],
   template: `
-    <div class="fixed inset-0 z-10 bg-black/50 transition-opacity duration-300" [ngClass]="{'opacity-0 pointer-events-none': !$chatVisible(), 'opacity-100': $chatVisible()}" (click)="setChatVisible(false)"></div>
-
+    <div class="z-10 fixed inset-0 bg-black/50 transition-opacity duration-300" [ngClass]="{'opacity-0 pointer-events-none': !$chatVisible(), 'opacity-100': $chatVisible()}" (click)="setChatVisible(false)"></div>
     <div>
     </div>
     @if($chatVisible()){
@@ -37,7 +36,7 @@ import { GetResources } from './resources/dtos/get.resources.dto';
     (page)="handlePageEvent($event)" aria-label="Select page">
     </mat-paginator>
 
-<div class="flex m-5 justify-start flex-wrap">
+<div class="flex m-5 justify-start flex-wrap z-0">
     @for (resource of $resources(); track resource._id) {
         <mat-card class="example-card m-3" appearance="outlined">
             <mat-card-header>
@@ -52,7 +51,7 @@ import { GetResources } from './resources/dtos/get.resources.dto';
                 <div class="mt-3 file-resource">
                     <div class="font-bold mb-2">Files: </div>
                     @for (f of resource.resources; track f.url) {
-                        <div class="cursor-pointer text-blue-600" (click)="downloadFile(f)">{{f.original_name}}</div>
+                        <div class="cursor-pointer text-blue-500" (click)="downloadFile(f)">{{f.original_name}}</div>
                     }
                 </div>
               }
@@ -66,7 +65,7 @@ import { GetResources } from './resources/dtos/get.resources.dto';
             <mat-card-actions class="mb-3">
             <div class="button-container flex justify-between items-center w-full">
               <span class="mr-5">
-                    <svg xmlns="http://www.w3.org/2000/svg" [attr.fill]="resource.likesUserId.includes(loggedInUserId) ? 'blue' : 'none'" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hover:text-blue-400 cursor-pointer inline-block" (click)="updateLike(resource._id, resource.likesUserId.includes(loggedInUserId))">
+                    <svg xmlns="http://www.w3.org/2000/svg" [attr.fill]="resource.likesUserId.includes(loggedInUserId) ? '#3b82f6' : 'none'" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hover:text-blue-400 cursor-pointer inline-block" (click)="updateLike(resource._id, resource.likesUserId.includes(loggedInUserId))">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                     </svg>
                     {{resource.likesUserId.length}}
