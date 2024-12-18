@@ -23,9 +23,13 @@ import {
         </mat-dialog-content>
         <mat-dialog-actions>
             <button mat-button mat-dialog-close (click)="onNoClick()">{{data.cancelText}}</button>
-            <button mat-button mat-dialog-close cdkFocusInitial (click)="onOkClick()">{{data.confirmText}}</button>
+            <button class="delete-btn" mat-button mat-dialog-close cdkFocusInitial (click)="onOkClick()">{{data.confirmText}}</button>
         </mat-dialog-actions>
-  `
+  `,
+    styles: `.delete-btn {
+    background-color: red;
+    color: white;
+  }`
 })
 export class ConfirmDialog {
     readonly dialogRef = inject(MatDialogRef<ConfirmDialog>);
@@ -44,6 +48,6 @@ export class ConfirmDialog {
         this.confirmed.emit(true);
         this.dialogRef.close();
     }
-    constructor(){
+    constructor() {
     }
 }

@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ResourceDTO } from './dtos/resources.dto';
 import { StandardResponse } from '../common/standard.response';
 import { Observable } from 'rxjs';
+import { GetResources } from './dtos/get.resources.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class ResourcesService {
   }
 
   getOwnResource(queryString: string) {
-    return this.#http.get<StandardResponse<ResourceDTO[]>>('resources/own/' + queryString);
+    return this.#http.get<StandardResponse<GetResources>>('resources/own/' + queryString);
   }
 
   downloadFile(path: string): Observable<Blob> {
@@ -32,5 +33,9 @@ export class ResourcesService {
 
   delete(resoureId: string) {
     return this.#http.delete('resources/' + resoureId);
+  }
+
+  getResources(queryString: string) {
+    return this.#http.get<StandardResponse<GetResources>>('resources/' + queryString);
   }
 }

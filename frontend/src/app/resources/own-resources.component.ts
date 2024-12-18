@@ -9,6 +9,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DomSanitizer } from '@angular/platform-browser';
 import { saveAs } from 'file-saver';
 import { StateService } from '../state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../components/Dialog/ConfirmDialog.components';
+import { GetResources } from './dtos/get.resources.dto';
 
 @Component({
   selector: 'app-own-resources',
@@ -18,23 +21,23 @@ import { StateService } from '../state.service';
       <button [routerLink]="['', 'resources', 'add']" mat-flat-button>Add Resource</button>
     </div>
 
-    <mat-paginator ngClass="mt-5 bg-gray-500" [length]="100" [pageSize]="$limit()" [pageSizeOptions]="[4]"
+    <mat-paginator ngClass="mt-5 bg-gray-500" [length]="$total()" [pageSize]="$limit()" [pageSizeOptions]="[4]"
     (page)="handlePageEvent($event)" aria-label="Select page">
 </mat-paginator>
 
-<div class="flex m-5 justify-center">
+<div class="flex m-5 justify-start flex-wrap">
     @for (resource of $ownResources(); track resource._id) {
-        <mat-card class="example-card mx-3" appearance="outlined">
+        <mat-card class="example-card m-3" appearance="outlined">
             <mat-card-header>
                 <mat-card-title>{{resource.title}}</mat-card-title>
             </mat-card-header>
-            <mat-card-content>
+            <mat-card-content class="h-full">
                 <div class="mt-3">
                     <span class="font-bold mb-2">Access Type: </span>
                     <span>{{resource.accessType == 1 ? 'public' : 'private'}}</span>
                 </div>
               @if (resource.resources) {
-                <div class="mt-3">
+                <div class="mt-3 file-resource">
                     <div class="font-bold mb-2">Files: </div>
                     @for (f of resource.resources; track f.url) {
                         <div class="cursor-pointer text-blue-600" (click)="downloadFile(f)">{{f.original_name}}</div>
@@ -47,13 +50,18 @@ import { StateService } from '../state.service';
                     <div [innerHTML]="this.$sanitizer.bypassSecurityTrustHtml(resource.content)"></div>
                 </div>
               }
-              <div class="button-container mt-auto flex justify-between items-center">
-                <span class="mr-5">
-                  <button mat-flat-button [routerLink]="['', 'resources', resource._id]">Details</button>
-                </span>
+            </mat-card-content>
+            <mat-card-actions class="mb-3">
+            <div class="button-container flex justify-between items-center w-full">
                 <span class="mr-5">
                   <svg xmlns="http://www.w3.org/2000/svg" [attr.fill]="resource.likesUserId.includes(loggedInUserId) ? 'blue' : 'none'" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hover:text-blue-400 cursor-pointer inline-block" (click)="updateLike(resource._id, resource.likesUserId.includes(loggedInUserId))">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>
+                  {{resource.likesUserId.length}}
+                </span>
+                <span class="mr-5">
+                  <svg [routerLink]="['', 'resources', resource._id]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hover:text-blue-400 cursor-pointer inline-block">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                   </svg>
                 </span>
                 <span class="mr-5">
@@ -62,22 +70,28 @@ import { StateService } from '../state.service';
                   </svg>
                 </span>
               </div>
-            </mat-card-content>
+            </mat-card-actions>
         </mat-card>
     }
 </div>
   `,
   styles: `
   .example-card {
-    width: 400px;
-    height: 450px;
+    width: 350px;
+    height: 400px;
+    min-width: 350px;
+    min-height: 400px;
     overflow: hidden;
 }
 
   .content {
     text-overflow: ellipsis;
     overflow: hidden;
-    height: 200px
+  }
+
+  .card-action {
+    width: 400px;
+    min-width: 400px;
   }
   `
 })
@@ -89,12 +103,14 @@ export class OwnResourcesComponent {
   $total = signal<number>(0);
   $sanitizer = inject(DomSanitizer);
   loggedInUserId = inject(StateService).$state()._id;
+  dialog = inject(MatDialog)
 
   constructor() {
 
     effect(() => {
-      this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<ResourceDTO[]>) => {
-        this.$ownResources.set(res.data);
+      this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<GetResources>) => {
+        this.$ownResources.set(res.data.resources);
+        this.$total.set(res.data.total);
       });
     });
   }
@@ -113,17 +129,34 @@ export class OwnResourcesComponent {
 
   updateLike(resourceId: string, liked: boolean) {
     this.#resourceService.updateLike(resourceId, liked).subscribe(res => {
-      this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<ResourceDTO[]>) => {
-        this.$ownResources.set(res.data);
+      this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<GetResources>) => {
+        this.$ownResources.set(res.data.resources);
+        this.$total.set(res.data.total);
       });
     });
   }
 
   delete(resourceId: string) {
-    this.#resourceService.delete(resourceId).subscribe(res => {
-      this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<ResourceDTO[]>) => {
-        this.$ownResources.set(res.data);
-      });
-    });
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '250px',
+      data: {
+        title: 'warning',
+        content: 'Would you like to delete the resource?',
+        cancelText: 'cancel',
+        confirmText: 'delete'
+      }
+    })
+    dialogRef.componentInstance.confirmed.subscribe(res => {
+      if (res) {
+        this.#resourceService.delete(resourceId).subscribe(res => {
+          this.#resourceService.getOwnResource(`?page=${this.$pageIndex() + 1}&limit=${this.$limit()}`).subscribe((res: StandardResponse<GetResources>) => {
+            this.$ownResources.set(res.data.resources);
+            this.$total.set(res.data.total);
+          });
+        });
+      } else {
+        dialogRef.close()
+      }
+    })
   }
 }
