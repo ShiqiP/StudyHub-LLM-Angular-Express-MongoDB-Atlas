@@ -13,6 +13,7 @@ import { ResourceAccessTypeEnum } from "../common/resource.accesstype.enum";
 import { MulterFileDetail, ParsedResourceDTO } from "./dtos/parse.resource.dto";
 import { AddCommentDTO } from "./dtos/add.comment.dto";
 import { CommentDTO } from "../comments/dtos/comment.dto";
+import { GetResources } from "./dtos/get.resource.dto";
 
 export const uploadResource: RequestHandler<unknown, StandardResponse<Partial<Resource>>, AddResourceDTO, unknown> = async (req, res, next) => {
     try {
@@ -26,25 +27,6 @@ export const uploadResource: RequestHandler<unknown, StandardResponse<Partial<Re
         let parsedData: Partial<ParsedResourceDTO> = {};
 
         try {
-            // for (const f in req.files) {
-            //     const extName = path.extname(req.files[f].originalname);
-            //     if (extName === ".pdf") {
-            //         let dataBuffer = fs.readFileSync(req.files[f].path);
-            //         let data = await PdfParse(dataBuffer);
-            //         contentText += data.text;
-            //     } else if (extName === ".doc" || extName === ".docx") {
-            //         let data = await mammoth.extractRawText({ path: req.files[f].path });
-            //         contentText += data.value;
-            //     } else {
-            //         contentText += fs.readFileSync(req.files[f].path, { encoding: 'utf8' });
-            //     }
-
-            //     resource_files.push({
-            //         url: req.files[f].path,
-            //         original_name: req.files[f].originalname,
-            //         original_type: req.files[f].mimetype
-            //     });
-            // }
             if (req.files) {
                 parsedData = await parseFiles(req.files);
             }
@@ -85,11 +67,13 @@ export const uploadResource: RequestHandler<unknown, StandardResponse<Partial<Re
     }
 };
 
-export const getResources: RequestHandler<unknown, StandardResponse<Partial<Resource>[]>, unknown, { page: number, limit: number }> = async (req, res, next) => {
+export const getResources: RequestHandler<unknown, StandardResponse<GetResources>, unknown, { page: number, limit: number }> = async (req, res, next) => {
     try {
 
         const page = req.query.page ?? 1;
         const limit = req.query.limit ?? 10;
+
+        const total = await ResourceModel.find({ accessType: ResourceAccessTypeEnum.public }).countDocuments();
 
         let resources = await ResourceModel.find({ accessType: ResourceAccessTypeEnum.public }, {
             title: 1,
@@ -105,18 +89,20 @@ export const getResources: RequestHandler<unknown, StandardResponse<Partial<Reso
             .skip((page - 1) * limit)
             .limit(limit);
 
-        res.status(200).json({ success: true, data: resources });
+        res.status(200).json({ success: true, data: { total: total, resources: resources } });
 
     } catch (err) {
-        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: [] });
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: { total: 0, resources: [] } });
     }
 };
 
-export const getOwnResources: RequestHandler<unknown, StandardResponse<Partial<Resource>[]>, unknown, { page: number, limit: number }> = async (req, res, next) => {
+export const getOwnResources: RequestHandler<unknown, StandardResponse<GetResources>, unknown, { page: number, limit: number }> = async (req, res, next) => {
     try {
 
         const page = req.query.page ?? 1;
         const limit = req.query.limit ?? 10;
+
+        const total = await ResourceModel.find({ author: req['user']?._id }).countDocuments();
 
         let resources = await ResourceModel.find({ author: req['user']?._id }, {
             title: 1,
@@ -132,10 +118,10 @@ export const getOwnResources: RequestHandler<unknown, StandardResponse<Partial<R
             .skip((page - 1) * limit)
             .limit(limit);
 
-        res.status(200).json({ success: true, data: resources });
+        res.status(200).json({ success: true, data: { total: total, resources: resources } });
 
     } catch (err) {
-        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: [] });
+        res.status(500).json({ success: false, message: `Something went wrong: ${err}`, data: { total: 0, resources: [] } });
     }
 };
 
