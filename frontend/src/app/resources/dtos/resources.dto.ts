@@ -22,6 +22,7 @@ export interface FileUploadDTO {
 export interface CommentDTO {
     _id: string,
     comment: string,
-    userId: string,
-    parentId?: string
+    user: { fullname: string, _id: string },
+    parentId?: string,
+    createdAt?: number
 }

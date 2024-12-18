@@ -6,7 +6,7 @@ import { FileUploadSchema } from './file.upload.model';
 
 const commentSchema = new Schema({
     comment: { type: String, required: true },
-    userId: { type: String, required: true },
+    user: { type: { _id: String, fullname: String }, required: true },
     parentId: { type: String, default: null } // null-first level comment
 }, {
     timestamps: true
