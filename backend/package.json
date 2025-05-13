@@ -5,7 +5,8 @@
   "scripts": {
     "start": "tsx watch --env-file=.env src/server.ts",
     "build": "npx tsc",
-    "start_prod": "node --experimental-require-module ./dist/server.js"
+    "start_prod": "node --experimental-require-module ./dist/server.js",
+    "migrate": "npx tsx --env-file=.env ./migrate.ts "
   },
   "keywords": [],
   "author": "",

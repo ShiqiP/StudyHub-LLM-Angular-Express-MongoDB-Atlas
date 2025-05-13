@@ -31,7 +31,7 @@ POST http://localhost:3000/users/signin
 Content-Type: application/json
 
 {
-    "email": "roshan.maharjan@miu.edu",
+    "email": "xxx@miu.edu",
     "password": "test"
 }
 

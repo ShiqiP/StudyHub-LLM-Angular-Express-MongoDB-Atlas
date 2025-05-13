@@ -1,42 +1,55 @@
-### CS572-Final-Project-December-2024
 
-This repository should be "Accepted/Forked" by one member of the team only, they will add their other team member(s) as "collaborators" so they could collaborate and push their code to the same repository. Pair programming is encouraged.
 
-### Application specifications and requirements
 
-It’s up to you to decide your project specs and requirements. Take your time to plan your project idea, write down a short description for it, set your goals, and have a clear scope. Your project must use the following:
+# StudyHub (LLM + Angular + Express + MongoDB Atlas)
 
-- Implement a login-based system with JWT.
-- Must use AI features integrated with the application (Tools, RAG.. etc)
-- All frontend add/update/delete actions or routes should be protected from public access by JWT (except sign-up and sign-in routes)
-- All backend add/update/delete routes should be protected from public access by JWT (except sign-up and sign-in routes)
-- Lazy-load the frontend routes, and follow a standard REST design in the backend.
-- Both frontend and backend code must be safely typed, you are not allowed to use the explicit `any` type, nor the inferred implicit `any` type.
-- Your frontend code must follow the latest Angular API specification, you are not allowed to use old practices.
-- Application global state and local state must be declared with signals. Derived states must use computed signals.
-- Projects must have proper UI that complies with the web standards (use a UI Kit).
+<video controls src="Meeting with Shiqi Pang-20250513_111948-Meeting Recording 1 (online-video-cutter.com).mp4" title="Title"></video>
 
-Note: Chat and product listing applications are not allowed.
+This is a full-stack web application that integrates Large Language Models (LLMs) with modern web technologies(Angular19, Express and MongoDB Atlas) to provide intelligent document and file management.
 
-### Notes
+## features
+🔐 Authentication
+- Secure user authentication using JWT and bcryptjs
 
-- Before you write any code, and on the first day of the project, write a description of your project, and create a sketch of your UI screens and match them with a MongoDB schema design, and call me to verify your DB design and application scope, once approved, you may start coding.
-- You are not required to come to the classroom during the project.
-- I'm available to assist you every day through Teams from 10:00 AM to 12:30 PM, and from 2:00 PM to 3:00 PM, except for Sunday.
-- Students are expected to be available during class hours (above) on teams to receive occasional calls and check on their progress.
-- A daily push is required to track your code contribution and performance. If you miss a push that will affect your final grade.
+- Supports sign-up and sign-in functionality
 
-### Technical Evaluation
+📚 Resource Management
+- Create, delete, and manage rich text content and file uploads/downloads
 
-The last push should be performed before Thursday 9 pm. Teams are expected to submit a screen recorded demo that covers the project idea, and how to use the system. Do not show or explain your code patterns. Please send me the video URL on Teams.
+- All content is embedded and indexed using vector embeddings for semantic search
 
-Good luck and happy coding!
+🤖 AI-Powered Features
+- Smart Recommendations: Suggests 3 relevant resources based on vector similarity using a custom vector index in MongoDB
 
-### Code Honor Submission Policy
+- Question Answering: Users can ask natural language questions, and the system returns answers based on stored resources using LLM prompting
 
-All written code must be original. Presenting any code as one’s own work when it came from another source (copying code) is plagiarism, which includes any matching patterns and code snippets, and will affect your grade. The use of AI code assistance tools or code generative AI is not permitted in this project. You can only integrate with LLM API so users can use smart features. For more details, check the full course policies in the syllabus.
+🧠 Vector Indexing
+- Custom vector index with cosine similarity on contentEmbedding field (1536 dimensions)
 
-Generate interface for me. This is a studyhub app. people can upload resources which contains richtext, pdf uploaded. The resource is public or private. public resources displayed in the homepage. when you click the resources you can see the detail, and there is a chat button beside it. you can ask question based on the resources. and there are sign in and sign up features.
+- Supports access control with accessType filter
+
+
+## how to run this project
+1. Set Up Environment Variables
+
+Create a .env file in the /backend directory with the following content:
+
+```
+ATLAS_MONGODB_URL = 
+ATLAS_MONGODB_APPNAME = 
+ATLAS_MONGODB_USERNAME =   
+ATLAS_MONGODB_PASSWORD = 
+ATLAS_MONGODB_DBNAME = 
+OPENAI_API_KEY = 
+SECRET = FinalMWAProject # for password encryption
+```
+2. Set Up MongoDB Atlas 
+- Create a free cluster
+- White list your IP and create a database user
+- Copy the connection string into ATLAS_MONGODB_URL
+
+3. Create Vertor Index in MongoDB Atlas
+Create a vector index named "resource_vector_index" with the following configuration:
 
 ```json
 {
@@ -54,3 +67,22 @@ Generate interface for me. This is a studyhub app. people can upload resources w
   ]
 }
 ```
+
+4. Set Up OpenAI API
+- Subscribe to a paid plan
+- Create new secret key and assign it to "OPENAI_API_KEY" 
+
+5. Configure CKEditor 5
+- Sign up at CKEditor for a free 14-day trial
+- Add your CKEditor license key to:
+"/frontend/src/environments/environment.ts"
+
+(I will replace a free library in the future)
+
+
+## database migration
+```bash
+npm run migrate
+```
+
+If you don't specify your database, mongoDB automatically assign a "test" database for you.
