@@ -8,25 +8,33 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
   template: `
-  <mat-toolbar class="flex justify-between h-20">
-    <span>
-      <img src="assets/img/logo.png" class="inline-block w-20 h-20 p-2" alt="logo"/>
-      Study Hub
-    </span>
-    <span>
-      <a mat-button [routerLink]="['', 'dashboard']">Dashboard</a>
-      <a mat-button [routerLink]="['', 'resources']">Resource</a>
-    @if(!state_service.isLoggedIn()){
-      <a mat-button class="bg-blue-400 p-1" [routerLink]="['','signin']">Signin</a>
-      <a mat-button class="bg-blue-400 p-1" [routerLink]="['','signup']">Signup</a>
-    } @else {
-      <button mat-button (click)="signout()">Signout</button>
-    }
-    </span>
-  </mat-toolbar>
-    <div class="my-5 mx-28">
+  <div class="bg-[#f6f7f9] min-h-dvh">
+    <header class="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-gray-200 shadow-sm">
+    <!-- <mat-toolbar class="sticky flex justify-between top-0 z-10 backdrop-blur-md   border-gray-200 shadow-sm"> -->
+      <div class="container flex items-center justify-between h-16 px-4 mx-auto">
+        <div class="flex items-center gap-3">
+          <!-- <img src="assets/img/logo.png" class="inline-block w-20 h-20 p-2" alt="logo"/> -->
+          <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r bg-blue-500" >
+            Study Hub
+          </h1>
+        </div>
+        <div class="flex gap-4 items-center space-x-1 ">
+          <button  class="hover:text-blue-500" [routerLink]="['', 'dashboard']">Dashboard</button>
+          <button class="hover:text-blue-500" [routerLink]="['', 'resources']">Resource</button>
+          @if(!state_service.isLoggedIn()){
+            <button class="bg-violet-10 p-1 hover:text-blue-500" [routerLink]="['','signin']">Signin</button>
+            <button  class="bg-violet-10 p-1 hover:text-blue-500" [routerLink]="['','signup']">Signup</button>
+          } @else {
+            <button  (click)="signout()">Signout</button>
+          }
+        </div>
+      </div>
+    </header>
+    <!-- </mat-toolbar> -->
+    <div class="bg-[#f6f7f9] container px-4 mx-auto my-10">
       <router-outlet />
     </div>
+  </div>
   `,
   styles: `
   a{margin-right: 10px}

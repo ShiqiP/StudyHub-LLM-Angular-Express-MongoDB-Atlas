@@ -61,8 +61,8 @@ export class SigninComponent {
   #router = inject(Router);
 
   form = inject(FormBuilder).nonNullable.group({
-    'email': ['roshan.maharjan@miu.edu', Validators.required],
-    'password': ['test', Validators.required],
+    'email': ['shiqi@miu.edu', Validators.required],
+    'password': ['shiqi123456', Validators.required],
   });
 
   go() {

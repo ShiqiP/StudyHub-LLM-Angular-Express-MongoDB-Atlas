@@ -3,8 +3,8 @@ import { ResourceAccessTypeEnum } from "../../common/resource.accesstype.enum";
 export interface ResourceDTO {
     _id: string,
     title: string,
-    content?: string,
-    resources?: FileUploadDTO[],
+    content: string,
+    resources: FileUploadDTO[],
     embeddedText: string,
     contentEmbedding: number[],
     accessType: ResourceAccessTypeEnum, // 0-private 1-public

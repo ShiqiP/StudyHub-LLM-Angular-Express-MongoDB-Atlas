@@ -80,7 +80,6 @@ export class SignupComponent {
     formData.append('password', this.form.controls.password.value);
     formData.append('profile_picture', this.#profile_picture);
     this.#users_service.singup(formData).subscribe(response => {
-      console.log(response);
       this.#router.navigate(['', 'signin']);
     });
   }

@@ -17,30 +17,26 @@ import { GetResources } from "./dtos/get.resource.dto";
 
 export const uploadResource: RequestHandler<unknown, StandardResponse<Partial<Resource>>, AddResourceDTO, unknown> = async (req, res, next) => {
     try {
-        const resource_files: FileUploadDTO[] = [];
+        // const resource_files: FileUploadDTO[] = [];
         let contentText: string = "";
-
-        if (req.body.content) {
-            contentText += req.body.content;
-        }
 
         let parsedData: Partial<ParsedResourceDTO> = {};
 
         try {
             if (req.files) {
                 parsedData = await parseFiles(req.files);
+                contentText += req.body.content + parsedData.contentText;
             }
         } catch (err) {
             res.status(500).json({ success: false, message: `Cannot parse one or more file please only use pdf, word, or any file extension which can be opened in text editor.`, data: {} });
             return;
         }
-
         const embedding = await generateEmbedding(contentText);
 
         const resource: Partial<ResourceDTO> = {
             title: req.body.title,
             content: req.body.content,
-            resources: resource_files,
+            resources: parsedData.resource_files,
             embeddedText: contentText,
             contentEmbedding: embedding,
             accessType: req.body.accessType, // 0-private 1-public
@@ -241,7 +237,6 @@ export const likeResourceById: RequestHandler<{ id: string }, StandardResponse<n
 };
 
 export const commentResourceById: RequestHandler<{ id: string }, StandardResponse<number>, AddCommentDTO, unknown> = async (req, res, next) => {
-    console.log(req.body);
     try {
         const comment: CommentDTO = {
             user: { _id: req['user']?._id, fullname: req['user'].fullname },

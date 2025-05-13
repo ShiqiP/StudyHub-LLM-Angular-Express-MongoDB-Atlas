@@ -41,7 +41,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
         </span>
     </div>
     }
-    <form [formGroup]="form" (ngSubmit)="go()">
+    <form [formGroup]="form" (ngSubmit)="go()" class="flex flex-col gap-5">
       <mat-form-field class="example-full-width">
       <mat-label>Title</mat-label>
       <input type="text" matInput [formControl]="form.controls.title" [errorStateMatcher]="matcher"
@@ -65,9 +65,14 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
           </mat-radio-group>
         </div>
       <div class="mt-3">
-        <input type="file" multiple [formControl]="form.controls.resources" (change)="pickup_file($event)"/>
+        <input class="" type="file" multiple [formControl]="form.controls.resources" (change)="pickup_file($event)"/>
       </div>
-      <button class="mt-3" mat-flat-button type="submit" [disabled]="form.invalid">Submit</button>
+      <div>
+      <button class="bg-blue-500 text-white py-2 px-4 rounded-md" type="submit">
+        Submit
+      </button>
+      </div>
+
     </form>
   `,
   styles: ``
