@@ -1,9 +1,8 @@
 
 
-
 # StudyHub (LLM + Angular + Express + MongoDB Atlas)
 
-<video controls src="Meeting with Shiqi Pang-20250513_111948-Meeting Recording 1 (online-video-cutter.com).mp4" title="Title"></video>
+<img controls src="demo.gif" title="Title"></img>
 
 This is a full-stack web application that integrates Large Language Models (LLMs) with modern web technologies(Angular19, Express and MongoDB Atlas) to provide intelligent document and file management.
 
